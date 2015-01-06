@@ -1,14 +1,14 @@
 exports.wesdata = {
   results: [{
-    name: 'Wes',
+    username: 'Wes',
     text: 'Hey there!!!',
     objectId: 1
   },{
-    name: 'Coraline',
+    username: 'Coraline',
     text: 'Whoa that was amazing',
     objectId: 2
   },{
-    name: 'Tanner',
+    username: 'Tanner',
     text: 'Good luck my friend',
     objectId: 3
   }]
