@@ -23,6 +23,7 @@ exports.requestHandler = function(request, response) {
   var http = require('http');
   var url = require('url');
   var wesdata = require('./data.js').wesdata;
+  var qs = require('querystring');
 
   // console.log(url.parse('file:///Users/student/hr/ryan/2014-12-chatterbox-client/client/index.html?username=anonymous', true));
   var everything = '';
@@ -55,35 +56,8 @@ exports.requestHandler = function(request, response) {
   // See the note below about CORS headers.
   var headers = defaultCorsHeaders;
 
-  var options = {
-    hostname: '127.0.0.1',
-    port: 3000,
-    path: 'classes/chatterbox/',
-    method: 'POST'
-  };
+  // 
 
-  var req = http.request(options, function(res) {
-    // console.log('STATUS: ' + res.statusCode);
-    // console.log('HEADERS: ' + JSON.stringify(res.headers));
-    res.setEncoding('utf8');
-    res.on('data', function (chunk) {
-      // console.log('BODY: ' + chunk);
-    });
-  });
-
-  req.on('data', function(chunk) {
-    // console.log("Request body: " + chunk)
-  });
-
-  req.on('error', function(e) {
-    console.log('problem with request: ' + e.message);
-  });
-
-  // write data to request body
-  req.write('data\n');
-  req.end();
-
-  console.log(req);
 
   // Tell the client we are sending them plain text.
   //
@@ -98,11 +72,33 @@ exports.requestHandler = function(request, response) {
     headers['Content-Type'] = "application/json";
     response.writeHead(statusCode, headers);
     response.end();
-  } else if (request.method === 'POST') {
-    headers['Content-Type'] = "application/json";
-    response.writeHead(statusCode, headers);
-    response.write(request.url);
-    response.end();
+  } else if (request.method === "POST") {
+    if (request.url === "/classes/chatterbox/") {
+      var requestBody = '';
+      request.on('data', function(data) {
+        requestBody += data;
+        if(requestBody.length > 1e7) {
+          response.writeHead(413, 'Request Entity Too Large', {'Content-Type': 'text/html'});
+          response.end('<!doctype html><html><head><title>413</title></head><body>413: Request Entity Too Large</body></html>');
+        }
+      });
+      request.on('end', function() {
+        var body = JSON.parse(requestBody);
+        var username = body.username;
+        var text = body.text;
+        console.log(username + ':' + text);
+        response.writeHead(200, headers);
+        // response.write('<!doctype html><html><head><title>response</title></head><body>');
+        // response.write('Thanks for the data!<br />User Name: '+formData.UserName);
+        // response.write('<br />Repository Name: '+formData.Repository);
+        // response.write('<br />Branch: '+formData.Branch);
+        response.write(username + ': ' + text);
+        response.end();
+      });
+    } else {
+      response.writeHead(404, 'Resource Not Found', {'Content-Type': 'text/html'});
+      response.end('<!doctype html><html><head><title>404</title></head><body>404: Resource Not Found</body></html>');
+    }
   }
 
   
