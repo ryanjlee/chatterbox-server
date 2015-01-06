@@ -43,7 +43,9 @@ exports.requestHandler = function(request, response) {
     response.writeHead(statusCode, headers);
     response.end();
   } else if (request.method === "POST") {
+    headers['Content-Type'] = "application/json";
     if (request.url === "/classes/messages/") {
+      console.log(request.url);
       var requestBody;
       request.on('data', function(data) {
         requestBody = data;
