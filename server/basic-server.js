@@ -18,6 +18,7 @@ var ip = "127.0.0.1";
 
 
 
+
 // We use node's http module to create a server.
 //
 // The function we pass to http.createServer will be used to handle all
@@ -27,7 +28,22 @@ var ip = "127.0.0.1";
 var server = http.createServer(handleRequest);
 server.listen(port, ip);
 console.log("Listening on http://" + ip + ":" + port);
-console.log(fs);
+
+fs.mkdir('./classes', function(e){
+  console.log(e);
+});
+
+fs.mkdir('./classes/messages', function(e){
+  console.log(e);
+});
+
+fs.exists('./classes/messages', function(exists){
+  if (exists) {
+    console.log('it\'s there');
+  } else {
+    console.log('nothing');
+  }
+});
 
 // To start this server, run:
 //

@@ -12,8 +12,6 @@ this file and include it in basic-server.js so that it actually works.
 
 **************************************************************/
 
-
-
 module.exports.requestHandler = function(request, response) {
   // Request and Response come from node's http module.
   // They include information about both the incoming request, such as
@@ -22,6 +20,28 @@ module.exports.requestHandler = function(request, response) {
   //
   // Documentation for both request and response can be found in the HTTP section at
   // http://nodejs.org/documentation/api/
+  var http = require('http');
+  var url = require('url');
+  var qs = require('querystring');
+
+  console.log(url.parse('file:///Users/student/hr/ryan/2014-12-chatterbox-client/client/index.html?username=anonymous', true));
+
+  console.log(request);
+  // if(request.method === "GET") {
+  //   var data = "";
+
+  //   request.on("data", function(chunk) {
+  //       data += chunk;
+  //   });
+
+  //   request.on("end", function() {
+  //       util.log("raw: " + data);
+
+  //       var json = qs.parse(data);
+
+  //       util.log("json: " + json);
+  //   });
+  // }
 
   // Do some basic logging.
   //
@@ -40,12 +60,12 @@ module.exports.requestHandler = function(request, response) {
   //
   // You will need to change this if you are sending something
   // other than plain text, like JSON or HTML.
-  headers['Content-Type'] = "text/plain";
+  headers['Content-Type'] = "application/json";
 
   // .writeHead() writes to the request line and headers of the response,
   // which includes the status and all headers.
   response.writeHead(statusCode, headers);
-
+  // response.write();
   // Make sure to always call response.end() - Node may not send
   // anything back to the client until you do. The string you pass to
   // response.end() will be the body of the response - i.e. what shows
@@ -53,7 +73,9 @@ module.exports.requestHandler = function(request, response) {
   //
   // Calling .end "flushes" the response's internal buffer, forcing
   // node to actually send all the data over to the client.
-  response.end("Hello, World!");
+  // console.log(response);
+  // console.log(request);
+  response.end("Hello, World! and everyone else");
 };
 
 // These headers will allow Cross-Origin Resource Sharing (CORS).
