@@ -1,6 +1,6 @@
 /* Import node's http module: */
 var http = require("http");
-var handleRequest = require("request-handler.js").requestHandler;
+var handleRequest = require("./request-handler.js").requestHandler;
 var url = require('url');
 var fs = require('fs');
 
@@ -29,21 +29,21 @@ var server = http.createServer(handleRequest);
 server.listen(port, ip);
 console.log("Listening on http://" + ip + ":" + port);
 
-fs.mkdir('./classes', function(e){
-  console.log(e);
-});
+// fs.mkdir('./classes', function(e){
+//   console.log(e);
+// });
 
-fs.mkdir('./classes/messages', function(e){
-  console.log(e);
-});
+// fs.mkdir('./classes/messages', function(e){
+//   console.log(e);
+// });
 
-fs.exists('./classes/messages', function(exists){
-  if (exists) {
-    console.log('it\'s there');
-  } else {
-    console.log('nothing');
-  }
-});
+// fs.exists('./classes/messages', function(exists){
+//   if (exists) {
+//     console.log('it\'s there');
+//   } else {
+//     console.log('nothing');
+//   }
+// });
 
 // To start this server, run:
 //

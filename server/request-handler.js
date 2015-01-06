@@ -23,26 +23,16 @@ module.exports.requestHandler = function(request, response) {
   var http = require('http');
   var url = require('url');
   var qs = require('querystring');
+  var wesdata = require('./data.js').wesdata;
 
-  console.log(url.parse('file:///Users/student/hr/ryan/2014-12-chatterbox-client/client/index.html?username=anonymous', true));
+  // console.log(url.parse('file:///Users/student/hr/ryan/2014-12-chatterbox-client/client/index.html?username=anonymous', true));
+  var everything = '';
 
-  console.log(request);
-  // if(request.method === "GET") {
-  //   var data = "";
+  for (var key in wesdata) {
+    everything+=wesdata[key].name + ': ' + wesdata[key].message + '\n';
+  }
 
-  //   request.on("data", function(chunk) {
-  //       data += chunk;
-  //   });
-
-  //   request.on("end", function() {
-  //       util.log("raw: " + data);
-
-  //       var json = qs.parse(data);
-
-  //       util.log("json: " + json);
-  //   });
-  // }
-
+  var total = request.headers.host + request.url;
   // Do some basic logging.
   //
   // Adding more logging to your server can be an easy way to get passive
@@ -65,7 +55,7 @@ module.exports.requestHandler = function(request, response) {
   // .writeHead() writes to the request line and headers of the response,
   // which includes the status and all headers.
   response.writeHead(statusCode, headers);
-  // response.write();
+  response.write(everything);
   // Make sure to always call response.end() - Node may not send
   // anything back to the client until you do. The string you pass to
   // response.end() will be the body of the response - i.e. what shows
@@ -73,9 +63,7 @@ module.exports.requestHandler = function(request, response) {
   //
   // Calling .end "flushes" the response's internal buffer, forcing
   // node to actually send all the data over to the client.
-  // console.log(response);
-  // console.log(request);
-  response.end("Hello, World! and everyone else");
+  response.end("This is the end");
 };
 
 // These headers will allow Cross-Origin Resource Sharing (CORS).
