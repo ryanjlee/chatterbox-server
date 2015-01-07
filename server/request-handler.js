@@ -1,3 +1,54 @@
+var url = require('url');
+var wesdata = require('./data.js').wesdata;
+
+var objectId = wesdata.results.length;
+
+var headers = {
+  'access-control-allow-origin': '*',
+  'access-control-allow-methods': 'GET, POST, PUT, DELETE, OPTIONS',
+  'access-control-allow-headers': 'content-type, accept',
+  'access-control-max-age': 10000, // Seconds.
+  'Content-Type' : 'application/json'
+};
+
+var sendResponse = function(response, statusCode, data) {
+  response.writeHead(statusCode, headers);
+  response.end(data);
+};
+
+var actions = {
+  'GET': function (request, response) {
+    sendResponse(response, 200, JSON.stringify(wesdata));
+  },
+  'OPTIONS': function(request, response) {
+    sendResponse(response, 200);
+  },
+  'POST': function (request, response) {
+    var requestBody = '';
+    request.on('data', function(chunk) {
+      requestBody += chunk;
+    });
+    request.on('end', function() {
+      var body = JSON.parse(requestBody);
+      body.objectId = ++objectId;
+      wesdata.results.push(body);
+      sendResponse(response, 201, JSON.stringify(body));
+    });
+  }
+};
+
+exports.requestHandler = function(request, response) {
+  console.log('Serving request type ' + request.method + ' for url ' + request.url);
+
+  var parts = url.parse(request.url);
+
+  if (parts.pathname === '/classes/messages' || parts.pathname === '/classes/room1') {
+    actions[request.method](request, response);
+  } else {
+    sendResponse(response, 404);
+  }
+};
+
 /*************************************************************
 
 You should implement your request handler function in this file.
@@ -11,79 +62,6 @@ this file and include it in basic-server.js so that it actually works.
 *Hint* Check out the node module documentation at http://nodejs.org/api/modules.html.
 
 **************************************************************/
-var objectId = 3;
-
-exports.requestHandler = function(request, response) {
-  var http = require('http');
-  var url = require('url');
-  var wesdata = require('./data.js').wesdata;
-  var qs = require('querystring');
-
-  var strung = JSON.stringify(wesdata);
-
-  console.log("Serving request type " + request.method + " for url " + request.url);
-
-  var statusCode = 200;
-
-  var defaultCorsHeaders = {
-    "access-control-allow-origin": "*",
-    "access-control-allow-methods": "GET, POST, PUT, DELETE, OPTIONS",
-    "access-control-allow-headers": "content-type, accept",
-    "access-control-max-age": 10000 // Seconds.
-  };
-
-  var headers = defaultCorsHeaders;
-  var parts = url.parse(request.url);
-
-  if (parts.pathname === "/classes/messages" || parts.pathname === "/classes/room1") {
-    if (request.method === 'GET') {
-      headers['Content-Type'] = "application/json";
-      response.writeHead(statusCode, headers);
-      // response.write();
-      response.end(strung);
-    } else if (request.method === 'OPTIONS') {
-      headers['Content-Type'] = "application/json";
-      response.writeHead(statusCode, headers);
-      response.end();
-    } else if (request.method === "POST") {
-      headers['Content-Type'] = "application/json";
-      var requestBody = '';
-      request.on('data', function(chunk) {
-        requestBody += chunk;
-        if(requestBody.length > 1e7) {
-          response.writeHead(413, 'Request Entity Too Large', {'Content-Type': 'text/html'});
-          response.end('<!doctype html><html><head><title>413</title></head><body>413: Request Entity Too Large</body></html>');
-        }
-      });
-      request.on('end', function() {
-        var body = JSON.parse(requestBody);
-        body.objectId = ++objectId;
-        //wesdata.results[wesdata.results.length - 1].objectId + 1;
-        wesdata.results.push(body);
-        // var username = body.username;
-        // var text = body.text;
-        // console.log(username + ':' + text);
-        var bodyString = JSON.stringify(body);
-        response.writeHead(201, headers);
-        // response.write();
-        response.end(bodyString);
-      });
-    }
-  } else {
-    response.writeHead(404, 'Resource Not Found', {'Content-Type': 'text/html'});
-    response.end('<!doctype html><html><head><title>404</title></head><body>404: Resource Not Found</body></html>');
-  }
-};
-
-  // console.log(url.parse('file:///Users/student/hr/ryan/2014-12-chatterbox-client/client/index.html?username=anonymous', true));
-  // var everything = '';
-  // for (var key in wesdata) {
-  //   everything+=wesdata[key].name + ': ' + wesdata[key].message + '\n';
-  // }
-  // var totalUrl = request.headers.host + request.url;
-  // console.log(totalUrl);
-
-  // console.log(request);
 
 
   // Request and Response come from node's http module.
@@ -122,5 +100,3 @@ exports.requestHandler = function(request, response) {
 //
 // Another way to get around this restriction is to serve you chat
 // client from this domain by setting up static file serving.
-
-
