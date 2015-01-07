@@ -11,6 +11,7 @@ this file and include it in basic-server.js so that it actually works.
 *Hint* Check out the node module documentation at http://nodejs.org/api/modules.html.
 
 **************************************************************/
+var objectId = 3;
 
 exports.requestHandler = function(request, response) {
   var http = require('http');
@@ -32,23 +33,23 @@ exports.requestHandler = function(request, response) {
   };
 
   var headers = defaultCorsHeaders;
+  var parts = url.parse(request.url);
 
-  if (request.method === 'GET') {
-    headers['Content-Type'] = "application/json";
-    response.writeHead(statusCode, headers);
-    response.write(strung);
-    response.end();
-  } else if (request.method === 'OPTIONS') {
-    headers['Content-Type'] = "application/json";
-    response.writeHead(statusCode, headers);
-    response.end();
-  } else if (request.method === "POST") {
-    headers['Content-Type'] = "application/json";
-    if (request.url === "/classes/messages/") {
-      console.log(request.url);
-      var requestBody;
-      request.on('data', function(data) {
-        requestBody = data;
+  if (parts.pathname === "/classes/messages" || parts.pathname === "/classes/room1") {
+    if (request.method === 'GET') {
+      headers['Content-Type'] = "application/json";
+      response.writeHead(statusCode, headers);
+      // response.write();
+      response.end(strung);
+    } else if (request.method === 'OPTIONS') {
+      headers['Content-Type'] = "application/json";
+      response.writeHead(statusCode, headers);
+      response.end();
+    } else if (request.method === "POST") {
+      headers['Content-Type'] = "application/json";
+      var requestBody = '';
+      request.on('data', function(chunk) {
+        requestBody += chunk;
         if(requestBody.length > 1e7) {
           response.writeHead(413, 'Request Entity Too Large', {'Content-Type': 'text/html'});
           response.end('<!doctype html><html><head><title>413</title></head><body>413: Request Entity Too Large</body></html>');
@@ -56,31 +57,23 @@ exports.requestHandler = function(request, response) {
       });
       request.on('end', function() {
         var body = JSON.parse(requestBody);
-        body.objectId = wesdata.results[wesdata.results.length - 1].objectId + 1;
+        body.objectId = ++objectId;
+        //wesdata.results[wesdata.results.length - 1].objectId + 1;
         wesdata.results.push(body);
         // var username = body.username;
         // var text = body.text;
         // console.log(username + ':' + text);
         var bodyString = JSON.stringify(body);
         response.writeHead(201, headers);
-        response.write(bodyString, 'utf8');
-        response.end();
+        // response.write();
+        response.end(bodyString);
       });
-    } else {
-      response.writeHead(404, 'Resource Not Found', {'Content-Type': 'text/html'});
-      response.end('<!doctype html><html><head><title>404</title></head><body>404: Resource Not Found</body></html>');
     }
+  } else {
+    response.writeHead(404, 'Resource Not Found', {'Content-Type': 'text/html'});
+    response.end('<!doctype html><html><head><title>404</title></head><body>404: Resource Not Found</body></html>');
   }
 };
-
-
-  // Request and Response come from node's http module.
-  // They include information about both the incoming request, such as
-  // headers and URL, and about the outgoing response, such as its status
-  // and content.
-  //
-  // Documentation for both request and response can be found in the HTTP section at
-  // http://nodejs.org/documentation/api/
 
   // console.log(url.parse('file:///Users/student/hr/ryan/2014-12-chatterbox-client/client/index.html?username=anonymous', true));
   // var everything = '';
@@ -91,6 +84,15 @@ exports.requestHandler = function(request, response) {
   // console.log(totalUrl);
 
   // console.log(request);
+
+
+  // Request and Response come from node's http module.
+  // They include information about both the incoming request, such as
+  // headers and URL, and about the outgoing response, such as its status
+  // and content.
+  //
+  // Documentation for both request and response can be found in the HTTP section at
+  // http://nodejs.org/documentation/api/
 
   // Do some basic logging.
   //
